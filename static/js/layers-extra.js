@@ -67,5 +67,4 @@ window.loadFoCutLayer = function(){
 loadLinkSatelitLayer(); setInterval(loadLinkSatelitLayer, 30000);
 loadSKKLRepairLayer(); setInterval(loadSKKLRepairLayer, 30000);
 loadBackupLinkLayer(); setInterval(loadBackupLinkLayer, 30000);
-loadSKKLRepair2024Layer(); setInterval(loadSKKLRepair2024Layer, 30000);
 loadFoCutLayer(); setInterval(loadFoCutLayer, 30000);
