@@ -30,6 +30,6 @@ L.control.layers(baseLayers, {
   "Submarine Cable": groupLayers.submarineCable,
   "SKKL Repair": skklRepairLayer,
   "Backup Link": backupLinkLayer,
-  "Link Satelit": linkSatelitLayer,
+  "Link Satelit Temporer": linkSatelitLayer,
   "FO Cut": foCutLayer
 }).addTo(map);
