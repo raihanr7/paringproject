@@ -1,0 +1,100 @@
+body { margin:0; padding:0; }
+#map { height:100vh; width:100%; }
+
+/* Judul */
+#judul-peta{
+  position:absolute; top:10px; left:50%; transform:translateX(-50%);
+  z-index:1000; font:700 28px/1 Arial, sans-serif; color:#fff;
+  background:rgba(0,0,0,.4); padding:4px 12px; border-radius:8px;
+}
+
+/* Legend */
+.legend{
+  background:#fff; padding:10px; line-height:18px; font-size:13px;
+  border-radius:5px; box-shadow:0 0 15px rgba(0,0,0,.2);
+}
+.legend i{ width:18px; height:18px; float:left; margin-right:8px; opacity:.8; }
+
+/* Sidebar */
+#sidebar{
+  position:absolute; top:0; right:-400px; width:350px; height:100%;
+  background:#fff; box-shadow:-2px 0 8px rgba(0,0,0,.3); z-index:1001;
+  transition:right .3s ease; padding:20px; overflow-y:auto;
+}
+#sidebar.open{ right:0; }
+#closeSidebar{
+  position:absolute; top:10px; right:15px; background:#f44336; color:#fff;
+  border:none; padding:4px 8px; cursor:pointer; border-radius:4px;
+}
+
+/* Label nama titik */
+.label-nama{
+  font-size:11px; font-weight:700; color:#333; background:rgba(255,255,255,.9);
+  padding:1px 4px; border-radius:3px; border:1px solid #ccc; box-shadow:0 0 2px rgba(0,0,0,.3);
+}
+
+/* Tombol custom (history/label) */
+.leaflet-control-history{ margin-bottom:8px!important; }
+.leaflet-control-search{ margin:0 0 8px 0!important; }
+.leaflet-bar.leaflet-control, .leaflet-bar{ box-shadow:0 1px 5px rgba(0,0,0,.12); margin-bottom:4px!important; border-radius:6px; overflow:hidden; }
+.leaflet-bar a, .leaflet-bar button{
+  width:36px; height:36px; display:flex; align-items:center; justify-content:center;
+  padding:0; margin:0; font-size:20px; background:#fff!important; color:#333!important;
+  border:none!important; border-radius:0!important; transition:background .18s;
+}
+.leaflet-bar a:hover, .leaflet-bar button:hover{ background:#eaf4ff!important; }
+.leaflet-bar.leaflet-control img, .leaflet-bar.leaflet-control svg{
+  width:22px!important; height:22px!important; max-width:22px!important; max-height:22px!important; display:block; margin:0 auto; object-fit:contain;
+}
+
+/* Button edit kecil */
+.btn-edit{
+  background:none!important; color:#007bff!important; border:none!important;
+  padding:3px 8px; border-radius:4px; cursor:pointer; font:700 11px/1.2 Arial;
+  text-decoration:underline; transition:color .2s; box-shadow:none!important;
+}
+.btn-edit:hover{ color:#0056b3!important; background:#eaf4ff!important; }
+
+/* Edit layout kecil */
+.okupansi-value-container, .okupansi-edit-form{ gap:3px!important; }
+.okupansi-edit-form{ flex-wrap:nowrap!important; align-items:center!important; }
+.okupansi-edit-form button{ font-size:11px!important; padding:2px 6px!important; margin:0; }
+.edit-input{ width:50px!important; padding:2px 4px!important; font-size:12px!important; }
+#sidebar table td{ vertical-align:middle!important; }
+
+/* Notifikasi */
+.notification{
+  position:fixed; top:80px; right:30px; padding:12px 20px; border-radius:6px;
+  font-weight:700; z-index:99999; box-shadow:0 4px 12px rgba(0,0,0,.3);
+  background:#4CAF50; color:#fff; animation:slideIn .3s ease-out;
+}
+.notification.error{ background:#f44336!important; }
+.notification.success{ background:#4CAF50!important; }
+
+/* Modal sederhana */
+.modal-backdrop{
+  position:fixed; left:0; top:0; width:100vw; height:100vh; z-index:99999; background:rgba(0,0,0,.35);
+}
+.modal-card{
+  position:absolute; top:50%; left:50%; transform:translate(-50%,-50%);
+  background:#fff; padding:28px 22px 16px; border-radius:12px; box-shadow:0 8px 32px rgba(0,0,0,.18); min-width:260px;
+}
+.modal-title{ margin-bottom:12px; font-size:19px; text-align:center; }
+.modal-card label{ display:block; margin:6px 0 4px; }
+.modal-card input, .modal-card select{ width:100%; margin-bottom:8px; padding:7px 8px; }
+.modal-actions{ display:flex; gap:8px; }
+.btn-primary{ flex:1; background:#007bff; color:#fff; padding:7px 0; border:none; border-radius:5px; font-weight:700; }
+.btn-neutral{ flex:1; background:#e0e0e0; color:#444; padding:7px 0; border:none; border-radius:5px; }
+.btn-close{ position:absolute; top:8px; right:12px; font-size:18px; background:transparent; border:none; cursor:pointer; }
+
+@media (max-width:500px){ #sidebar{ width:95vw!important; } }
+
+#sidebar .dokumen-preview {
+  max-width: 100%;
+  border-radius: 8px;
+  margin-top: 8px;
+  box-shadow: 0 2px 8px rgba(0,0,0,.12);
+}
+#sidebar .muted { color: #666; font-style: italic; }
+#sidebar .btn { padding: 6px 10px; border-radius: 6px; border: 0; background: #0d6efd; color: #fff; cursor: pointer; }
+#sidebar .btn:hover { filter: brightness(0.95); }
