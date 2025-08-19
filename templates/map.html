@@ -1,0 +1,64 @@
+{% extends "layout.html" %}
+{% block title %}Peta Palapa Ring (Live Data){% endblock %}
+
+{% block body %}
+  <div id="judul-peta">Peta Jaringan Layanan Telkom</div>
+  <div id="map"></div>
+
+  <!-- Sidebar detail -->
+  <div id="sidebar">
+    <button id="closeSidebar">Tutup</button>
+    <div id="sidebarContent"></div>
+  </div>
+
+  <!-- Modal Tambah Marker -->
+  <div id="markerModal" class="modal-backdrop" style="display:none;">
+    <form id="markerForm" class="modal-card">
+      <h3 class="modal-title">Tambah Marker</h3>
+
+      <label>Pilih Kategori:</label>
+      <select id="kategoriInput" required>
+        <option value="">--Pilih--</option>
+        <option value="backup">Backup Link</option>
+        <option value="linksatelit">Link Satelit Temporer</option>
+        <option value="repair2025">SKKL Repair</option>
+        <option value="fo_cut">FO Cut</option>
+      </select>
+
+      <div id="fieldDefault">
+        <label>Nama Site:</label>
+        <input id="siteInput" type="text" required placeholder="Nama Site">
+
+        <label>Deskripsi:</label>
+        <input id="descInput" type="text" required placeholder="Deskripsi">
+      </div>
+
+      <div class="modal-actions">
+        <button type="submit" class="btn-primary">Simpan</button>
+        <button type="button" id="batalMarker" class="btn-neutral">Batal</button>
+      </div>
+    </form>
+  </div>
+
+  <!-- Modal History -->
+  <div id="historyModal" class="modal-backdrop" style="display:none;">
+    <div class="modal-card" style="max-width:600px;">
+      <button onclick="closeHistoryModal()" class="btn-close">✕</button>
+      <h3 class="modal-title">Riwayat Edit</h3>
+      <div id="historyModalContent">Loading...</div>
+    </div>
+  </div>
+
+  <!-- Urutan script: config → utils → icons → baseLayers → mapInit → controls → layers → sidebar → markers → upload -->
+  <script src="{{ url_for('static', filename='js/config.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/utils.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/icons.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/baseLayers.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/mapInit.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/controls.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/layers-palapa.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/layers-extra.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/sidebar.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/markers.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/upload.js') }}"></script>
+{% endblock %}

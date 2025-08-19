@@ -26,10 +26,11 @@
 
     <link rel="icon" type="image/png" href="/static/images/telkom.png">
 
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
     <style>
         body { margin: 0; padding: 0; }
-        #map { height: 100vh; width: 100%; }
+        #map { height: 100dvh; width: 100%; }
         #judul-peta {
             text-align: center;
             font-size: 28px;
@@ -254,26 +255,54 @@
     <!-- Modal Add Marker -->
     <div id="markerModal" style="display:none; position:fixed; left:0; top:0; width:100vw; height:100vh; z-index:99999; background:rgba(0,0,0,0.3);">
         <form id="markerForm" style="position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); background:white; padding:28px 22px 16px 22px; border-radius:12px; box-shadow:0 8px 32px rgba(0,0,0,0.18); min-width:260px;">
-        <h3 style="margin-bottom:8px; font-size:19px; text-align:center;">Tambah Marker</h3>
-        <label>Pilih Kategori:</label><br>
-        <select id="kategoriInput" required style="width:100%;margin-bottom:8px;">
+            <h3 style="margin-bottom:8px; font-size:19px; text-align:center;">Tambah Marker</h3>
+            <label>Pilih Kategori:</label><br>
+            <select id="kategoriInput" required style="width:100%;margin-bottom:8px;">
             <option value="">--Pilih--</option>
             <option value="backup">Backup Link</option>
-            <option value="linksatelit">Link Satelit</option>
+            <option value="linksatelit">Link Satelit Temporer</option>
             <option value="repair2024">SKKL Repair 2024</option>
             <option value="repair2025">SKKL Repair 2025</option>
             <option value="fo_cut">FO Cut</option>
-        </select>
-        <label>Nama Site:</label><br>
-        <input type="text" id="siteInput" required style="width:100%;margin-bottom:8px;" placeholder="Nama Site"><br>
-        <label>Deskripsi:</label><br>
-        <input type="text" id="descInput" required style="width:100%;margin-bottom:12px;" placeholder="Deskripsi"><br>
-        <div style="display:flex;gap:8px;">
+            <option value="palapa">Palapa Ring</option>
+            </select>
+
+            <!-- SUBKATEGORI PALAPA RING (Barat/Tengah/Timur + Point/Alur) -->
+            <div id="subkategoriPalapa" style="display:none;">
+            <label>Pilih Ring:</label>
+            <select id="pilihRing" style="width:100%;margin-bottom:8px;">
+                <option value="">--Pilih--</option>
+                <option value="Barat">Barat</option>
+                <option value="Tengah">Tengah</option>
+                <option value="Timur">Timur</option>
+            </select>
+            <label>Tipe:</label>
+            <select id="pilihTipe" style="width:100%;margin-bottom:8px;">
+                <option value="">--Pilih--</option>
+                <option value="Point">Point</option>
+                <option value="Alur">Alur</option>
+            </select>
+            </div>
+
+            <!-- Field default hanya tampil kalau kategori BUKAN Palapa Ring -->
+            <div id="fieldDefault">
+            <label>Nama Site:</label><br>
+            <input type="text" id="siteInput" required style="width:100%;margin-bottom:8px;" placeholder="Nama Site"><br>
+            <label>Deskripsi:</label><br>
+            <input type="text" id="descInput" required style="width:100%;margin-bottom:12px;" placeholder="Deskripsi"><br>
+            </div>
+
+            <!-- Field dinamis Palapa Ring muncul di sini -->
+            <div id="fieldDinamis"></div>
+
+            <div style="display:flex;gap:8px;">
             <button type="submit" style="flex:1;background:#007bff;color:#fff;padding:7px 0;border:none;border-radius:5px;font-weight:bold;">Simpan</button>
             <button type="button" id="batalMarker" style="flex:1;background:#e0e0e0;color:#444;padding:7px 0;border:none;border-radius:5px;">Batal</button>
-        </div>
+            </div>
         </form>
     </div>
+
+
     <div id="historyModal" style="display:none;position:fixed;z-index:99999;left:0;top:0;width:100vw;height:100vh;background:rgba(0,0,0,0.35);">
     <div style="background:#fff;max-width:600px;width:94vw;margin:40px auto 0 auto;padding:24px;border-radius:10px;box-shadow:0 6px 30px #0003;position:relative;">
         <button onclick="closeHistoryModal()" style="position:absolute;top:8px;right:12px;font-size:18px;">✕</button>
@@ -420,12 +449,30 @@
 
             html += "</table>";
 
-            // Hapus tombol "Lihat Riwayat Edit" di bawah tabel (sudah pindah ke baris Okupansi Telkom)
+            // ==== FITUR UPLOAD FILE UNTUK SEMUA LAYER (PASTI UNIK ID-nya) ====
+            const fileInputId = `fileInput_${feature.properties['fid'] || Math.random().toString(36).substr(2,5)}`;
+            html += `
+            <div style="margin-top:12px;">
+                <input type="file" id="${fileInputId}" accept="image/*,application/pdf" />
+                <button onclick="uploadFileToSupabase('${feature.properties['fid']}', '${tableName}', '${fileInputId}')" style="margin-left:8px;">Upload File</button>
+            </div>
+            `;
+
+            // ==== PREVIEW FILE JIKA SUDAH ADA ====
+            if (feature.properties['dokumen_url']) {
+                if (/\.(jpg|jpeg|png|gif)$/i.test(feature.properties['dokumen_url'])) {
+                    html += `<div style="margin-top:6px;">
+                        <img src="${feature.properties['dokumen_url']}" alt="Preview" style="max-width:120px;max-height:120px;border-radius:6px;" />
+                    </div>`;
+                } else {
+                    html += `<div style="margin-top:6px;">
+                        <a href="${feature.properties['dokumen_url']}" target="_blank">Lihat File</a>
+                    </div>`;
+                }
+            }
 
             return html;
         }
-
-
 
         function showHistoryModal(linkName) {
             document.getElementById('historyModal').style.display = '';
@@ -462,7 +509,6 @@
             })
             .catch(() => content.innerHTML = "Gagal load history.");
         }
-
 
         function closeHistoryModal() {
             document.getElementById('historyModal').style.display = 'none';
@@ -962,7 +1008,7 @@
                 "<hr>" +
                 "<img src='/static/images/microwave.png' style='width:18px; height:18px; margin-right:8px;'>Microwave/Radio<br>" +
                 "<img src='/static/images/backuplink.png' style='width:18px; height:18px; margin-right:8px;'>Backup Link<br>" +
-                "<img src='/static/images/linksatelit.png' style='width:18px; height:18px; margin-right:8px;'>Link Satelit<br>" +
+                "<img src='/static/images/linksatelit.png' style='width:18px; height:18px; margin-right:8px;'>Link Satelit Temporer<br>" +
                 "<img src='/static/images/repair.png' style='width:18px; height:18px; margin-right:8px;'>Repair SKKL<br>" +
                 "<img src='/static/images/exclamation.png' style='width:18px;height:18px;margin-right:8px;'>FO Cut<br>" +
                 "<hr>" +
@@ -1253,7 +1299,61 @@
             toggleLabels(); // function sudah ada di script kamu
         };
 
-    
+        // Pakai project URL & public key kamu
+        const supabaseUrl = 'https://wtmfsznnmyinbgzkdofz.supabase.co';
+        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Ind0bWZzem5ubXlpbmJnemtkb2Z6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDc3MTYxNDIsImV4cCI6MjA2MzI5MjE0Mn0.gZzNz6hxypg4_oyGEgG7PrweuXw1pahGVi1GD4XO1nM';
+        const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
+
+
+        // Function upload file ke Supabase Storage dan update link ke backend
+        async function uploadFileToSupabase(fid, tableName, fileInputId) {
+            console.log('supabase:', supabase);
+            const input = document.getElementById(fileInputId);
+            if (!input || !input.files.length) {
+                alert('Pilih file dulu ya!');
+                return;
+            }
+            const file = input.files[0];
+            // Nama file unik: tabel_fid_timestamp_namaasli
+            const filename = `${tableName}_${fid}_${Date.now()}_${file.name}`;
+            
+            // Upload ke Supabase Storage (bucket: peta-dokumen)
+            const { data, error } = await supabase.storage
+                .from('peta-dokumen')
+                .upload(filename, file, { upsert: true });
+            if (error) {
+                alert('Gagal upload file: ' + error.message);
+                return;
+            }
+
+            // Dapatkan public URL file
+            const { data: publicUrlData } = supabase
+                .storage
+                .from('peta-dokumen')
+                .getPublicUrl(filename);
+
+            if (!publicUrlData || !publicUrlData.publicUrl) {
+                alert('Gagal mendapatkan public URL file!');
+                return;
+            }
+
+            const fileUrl = publicUrlData.publicUrl;
+            alert('Upload berhasil! File akan di-link ke data.');
+
+            // Update link dokumen ke backend Flask
+            await fetch(`/api/update/${tableName}/${fid}`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ dokumen_url: fileUrl })
+            });
+
+            // Refresh halaman supaya file langsung tampil
+            location.reload();
+        }
+
+
+
+
     </script>
 </body>
 </html>

@@ -7,7 +7,7 @@ from datetime import datetime
 from urllib.parse import unquote
 import uuid
 
-app = Flask(__name__)
+app = Flask(__name__, template_folder='templates', static_folder='static')
 CORS(app)
 
 # Koneksi ke database PostgreSQL menggunakan Supabase pooler
@@ -23,27 +23,27 @@ conn = psycopg2.connect(
 FIELD_ORDER = {
     "Palapa_Ring_Barat_Alur": [
         "Link", "Project Name", "Project", "Panjang Kabel Laut", "Panjang Kabel Darat", "Total Panjang Kabel",
-        "Kapasitas Palapa Ring", "Telkom Sewa", "Okupansi Telkom (%)", "Media Transmisi", "Periode", "Nilai Kontrak", "Updated at"
+        "Kapasitas Palapa Ring", "Telkom Sewa", "Okupansi Telkom (%)", "Media Transmisi", "Periode", "Nilai Kontrak", "Nilai Sewa Perbulan", "Updated at"
     ],
     "Palapa_Ring_Tengah_Alur": [
         "Link", "Project Name", "Project", "Panjang Kabel Laut", "Panjang Kabel Darat", "Total Panjang Kabel",
-        "Kapasitas Palapa Ring", "Telkom Sewa", "Okupansi Telkom (%)", "Media Transmisi", "Periode", "Nilai Kontrak", "Updated at"
+        "Kapasitas Palapa Ring", "Telkom Sewa", "Okupansi Telkom (%)", "Media Transmisi", "Periode", "Nilai Kontrak", "Nilai Sewa Perbulan", "Updated at"
     ],
     "Palapa_Ring_Timur_Alur": [
         "Link", "Project Name", "Project", "Panjang Kabel Laut", "Panjang Kabel Darat", "Total Panjang Kabel",
-        "Kapasitas Palapa Ring", "Telkom Sewa", "Okupansi Telkom (%)", "Media Transmisi", "Periode", "Nilai Kontrak", "Updated at"
+        "Kapasitas Palapa Ring", "Telkom Sewa", "Okupansi Telkom (%)", "Media Transmisi", "Periode", "Nilai Kontrak", "Nilai Sewa Perbulan", "Updated at"
     ],
     "Palapa_Ring_Barat_Point": [
         "Nama", "Project Name", "Project", "Nama Kota", "Nama Provinsi",
-        "Longitude", "Latitude", "Keterangan", "Media Transmisi", "Periode", "Nilai Kontrak", "Updated at"
+        "Longitude", "Latitude", "Keterangan", "Media Transmisi", "Periode", "Nilai Kontrak", "Nilai Sewa Perbulan", "Updated at"
     ],
     "Palapa_Ring_Tengah_Point": [
         "Nama", "Project Name", "Project", "Nama Kota", "Nama Provinsi",
-        "Longitude", "Latitude", "Keterangan", "Media Transmisi", "Periode", "Nilai Kontrak",  "Updated at"
+        "Longitude", "Latitude", "Keterangan", "Media Transmisi", "Periode", "Nilai Kontrak",  "Nilai Sewa Perbulan", "Updated at"
     ],
     "Palapa_Ring_Timur_Point": [
         "Nama", "Project Name","Project", "Nama Kota", "Nama Provinsi",
-        "Longitude", "Latitude", "Keterangan", "Media Transmisi", "Periode", "Nilai Kontrak", "Updated at"
+        "Longitude", "Latitude", "Keterangan", "Media Transmisi", "Periode", "Nilai Kontrak", "Nilai Sewa Perbulan", "Updated at"
     ],
     "SubmarineCable_Alur": [
         "Link", "Description"
@@ -53,9 +53,6 @@ FIELD_ORDER = {
         "name", "description"
     ],
 
-    "SKKL_Repair_2024_BY_DCS": [
-        "name", "description"
-    ],
 
     "Backup Link": [
         "site", "description"
@@ -94,7 +91,12 @@ def get_geojson_from_table(table_name):
 
             # Properties sesuai urutan
             props = {key: full_props.get(key, "") for key in ordered_keys}
-            
+
+            # Selalu sertakan dokumen_url kalau ada (meski tidak ada di FIELD_ORDER)
+            if 'dokumen_url' in full_props and 'dokumen_url' not in props:
+                props['dokumen_url'] = full_props['dokumen_url']
+
+        
             # Always include fid for update operations, even if not in display order
             if 'fid' in full_props and 'fid' not in props:
                 props['fid'] = full_props['fid']
@@ -162,7 +164,7 @@ def record_update_history(project_name, project, link_name, old_value, new_value
 # Rute untuk halaman utama (homepage)
 @app.route('/')
 def index():
-    return render_template('Peta Palapa Ring Semi-Realtime.html')  # Menyajikan file HTML
+    return render_template('map.html')
 
 # Endpoint GET data
 @app.route('/api/point/barat')
@@ -201,11 +203,6 @@ def repair_skkl():
 def fo_cut_paring():
     return jsonify(get_geojson_from_table("Palapa_Ring_FO_Cut"))
 
-
-@app.route('/api/repair/skkl2024')
-def repair_skkl2024():
-    return jsonify(get_geojson_from_table("SKKL_Repair_2024_BY_DCS"))
-
 @app.route('/api/backup-link')
 def backup_link():
     return jsonify(get_geojson_from_table("Backup Link"))
@@ -229,9 +226,6 @@ def tambah_marker():
     elif kategori == 'linksatelit':
         table_name = "Link_Satelit"
         field_name = "site"
-    elif kategori == 'repair2024':
-        table_name = "SKKL_Repair_2024_BY_DCS"
-        field_name = "name"
     elif kategori == 'repair2025':
         table_name = "SKKL_Repair_2025_BY_DCS"
         field_name = "name"
@@ -266,8 +260,6 @@ def delete_marker():
         table_name = "Backup Link"
     elif kategori == 'linksatelit':
         table_name = "Link_Satelit"
-    elif kategori == 'repair2024':
-        table_name = "SKKL_Repair_2024_BY_DCS"
     elif kategori == 'repair2025':
         table_name = "SKKL_Repair_2025_BY_DCS"
     elif kategori == 'fo_cut':
@@ -302,7 +294,6 @@ def update_marker():
     table_map = {
         'backup': 'Backup Link',
         'linksatelit': 'Link_Satelit',
-        'repair2024': 'SKKL_Repair_2024_BY_DCS',
         'repair2025': 'SKKL_Repair_2025_BY_DCS',
         'fo_cut': 'Palapa_Ring_FO_Cut'
     }
