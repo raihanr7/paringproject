@@ -108,4 +108,26 @@
     return true;
   };
 
+
+  // Return latest N file public URLs under tableName/id/ (sorted by filename; we use timestamp prefix)
+  window.listFileUrlsLatest = async function(tableName, id, limit = 2) {
+    try{
+      const folder = `${tableName}/${id}`;
+      const { data, error } = await sb.storage.from(STORAGE_BUCKET).list(folder, { limit: 200 });
+      if (error) throw error;
+      const files = (data || []).filter(o => !o.name.endsWith('/'));
+      // We name uploads as: <timestamp>_<safeName>, so sort by name to approximate latest
+      files.sort((a,b) => a.name.localeCompare(b.name));
+      const picked = files.slice(-limit);
+      const urls = picked.map(obj => {
+        const path = `${folder}/${obj.name}`;
+        const { data:pub } = sb.storage.from(STORAGE_BUCKET).getPublicUrl(path);
+        return pub?.publicUrl || null;
+      }).filter(Boolean);
+      return urls;
+    }catch(e){
+      console.error('listFileUrlsLatest error:', e);
+      return [];
+    }
+  };
 })();
