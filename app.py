@@ -229,7 +229,7 @@ def tambah_marker():
     elif kategori == 'repair2025':
         table_name = "SKKL_Repair_2025_BY_DCS"
         field_name = "name"
-    elif kategori == 'fo_cut':                       
+    elif kategori == 'fo_cut':
         table_name = "Palapa_Ring_FO_Cut"
         field_name = "name"
     else:
@@ -238,15 +238,16 @@ def tambah_marker():
     try:
         cur = conn.cursor()
         geom_wkt = f"POINT({lng} {lat})"
-        # SEMUA tabel diinsert kolom id, field_name, description, geom
         sql = f'INSERT INTO "{table_name}" ("id", "{field_name}", "description", "geom") VALUES (%s, %s, %s, ST_GeomFromText(%s, 4326))'
         cur.execute(sql, (new_id, site, description, geom_wkt))
         conn.commit()
         cur.close()
-        return {"success": True}
+        # <<-- Kembalikan id & table untuk proses upload evidence di frontend
+        return {"success": True, "id": new_id, "table": table_name}
     except Exception as e:
         conn.rollback()
         return {"success": False, "error": str(e)}, 500
+
 
 @app.route('/api/delete-marker', methods=['POST'])
 def delete_marker():
@@ -281,39 +282,73 @@ def delete_marker():
         return {"success": False, "error": str(e)}, 500
 
 
-@app.route('/api/update-marker', methods=['POST'])
-def update_marker():
-    data = request.json
-    kategori = data.get('kategori')
+@app.route('/api/update-marker-doc', methods=['POST'])
+def update_marker_doc():
+    data = request.get_json(force=True) or {}
+    table = data.get('table')
     marker_id = data.get('id')
-    lat, lng = data.get('lat'), data.get('lng')
+    dok_url = data.get('dokumen_url')
 
-    if not (kategori and marker_id and lat and lng):
-        return {"success": False, "error": "Incomplete data"}, 400
-
-    table_map = {
-        'backup': 'Backup Link',
-        'linksatelit': 'Link_Satelit',
-        'repair2025': 'SKKL_Repair_2025_BY_DCS',
-        'fo_cut': 'Palapa_Ring_FO_Cut'
-    }
-    table_name = table_map.get(kategori)
-    if not table_name:
-        return {"success": False, "error": "Kategori tidak dikenal"}, 400
+    if not (table and marker_id and dok_url):
+        return {"success": False, "error": "Missing table/id/dokumen_url"}, 400
 
     try:
         cur = conn.cursor()
-        # Update kolom geom dengan titik baru
-        sql = f'''UPDATE "{table_name}"
-                  SET geom = ST_SetSRID(ST_MakePoint(%s, %s), 4326)
-                  WHERE id = %s'''
-        cur.execute(sql, (lng, lat, marker_id))
+        # NB: kolom "dokumen_url" harus sudah ada di tabel terkait
+        cur.execute(f'UPDATE "{table}" SET dokumen_url = %s WHERE id = %s', (dok_url, marker_id))
+        updated = cur.rowcount
         conn.commit()
         cur.close()
-        return {"success": True}
+        return {"success": updated > 0, "updated": updated}
     except Exception as e:
-        conn.rollback()
+        try: conn.rollback()
+        except: pass
         return {"success": False, "error": str(e)}, 500
+
+
+@app.route('/api/clear-marker-doc', methods=['POST'])
+def clear_marker_doc():
+    data = request.get_json(force=True) or {}
+    table = data.get('table')
+    marker_id = data.get('id')
+
+    if not (table and marker_id):
+        return {"success": False, "error": "Missing table/id"}, 400
+
+    try:
+        cur = conn.cursor()
+        cur.execute(f'UPDATE "{table}" SET dokumen_url = NULL WHERE id = %s', (marker_id,))
+        updated = cur.rowcount
+        conn.commit()
+        cur.close()
+        return {"success": updated > 0, "updated": updated}
+    except Exception as e:
+        try: conn.rollback()
+        except: pass
+        return {"success": False, "error": str(e)}, 500
+
+def update_marker_doc():
+    data = request.get_json(force=True) or {}
+    table = data.get('table')
+    marker_id = data.get('id')
+    dok_url = data.get('dokumen_url')
+
+    if not (table and marker_id and dok_url):
+        return {"success": False, "error": "Missing table/id/dokumen_url"}, 400
+
+    try:
+        cur = conn.cursor()
+        # NB: kolom "dokumen_url" harus sudah ada di tabel terkait
+        cur.execute(f'UPDATE "{table}" SET dokumen_url = %s WHERE id = %s', (dok_url, marker_id))
+        updated = cur.rowcount
+        conn.commit()
+        cur.close()
+        return {"success": updated > 0, "updated": updated}
+    except Exception as e:
+        try: conn.rollback()
+        except: pass
+        return {"success": False, "error": str(e)}, 500
+
 
 @app.route('/api/update-okupansi', methods=['POST'])
 def update_okupansi():
@@ -545,6 +580,67 @@ def update_table(table_name, fid):
         traceback.print_exc()
         
         return jsonify({"error": f"Database error: {str(e)}"}), 500
+
+# ============================================================
+# NEW: Update by string id (UUID) for marker tables (FO Cut,
+#      SKKL Repair, Backup Link, Link Satelit, dll)
+#      This complements the existing /api/update/<table>/<int:fid>
+# ============================================================
+@app.route('/api/update/<table_name>/<uuid_str>', methods=['POST'])
+def update_table_by_uuid(table_name, uuid_str):
+    """
+    Generic updater for marker tables that use `id` (UUID, string).
+    Expected JSON body e.g.: { "dokumen_url": "https://..." }
+    You may send multiple fields; only existing columns will be updated.
+    """
+    try:
+        # Ambil payload
+        data = request.get_json(force=True) or {}
+        if not data:
+            return jsonify({"success": False, "error": "No data provided"}), 400
+
+        # Ambil daftar kolom valid pada tabel
+        with conn.cursor() as cur:
+            cur.execute("""
+                SELECT column_name
+                FROM information_schema.columns
+                WHERE table_schema = 'public' AND table_name = %s
+            """, (table_name,))
+            existing_cols = {r[0] for r in cur.fetchall()}
+
+        # Filter hanya kolom yang benar-benar ada
+        set_items = []
+        values = []
+        for k, v in data.items():
+            if k in existing_cols:
+                set_items.append(f'"{k}" = %s')
+                values.append(v)
+
+        if not set_items:
+            return jsonify({
+                "success": False,
+                "error": "No valid columns to update for this table"
+            }), 400
+
+        # Bangun dan jalankan UPDATE ... WHERE id = %s
+        set_sql = ", ".join(set_items)
+        sql = f'UPDATE "{table_name}" SET {set_sql} WHERE id = %s'
+        values.append(uuid_str)
+
+        with conn.cursor() as cur:
+            cur.execute(sql, tuple(values))
+            updated = cur.rowcount
+        conn.commit()
+
+        return jsonify({"success": updated > 0, "updated": updated})
+
+    except Exception as e:
+        try:
+            conn.rollback()
+        except:
+            pass
+        return jsonify({"success": False, "error": str(e)}), 500
+
 
 # ✅ FIXED Alternative endpoint for alur tables using Link field
 @app.route('/api/update-by-link/<table_name>/<path:link>', methods=['POST'])
