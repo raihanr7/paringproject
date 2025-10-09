@@ -5,29 +5,33 @@
   <title>{% block title %}Peta Palapa Ring (Live Data){% endblock %}</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-  <!-- Leaflet & Plugins -->
-  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <!-- Leaflet core (CSS + JS) -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
-  <link rel="stylesheet" href="https://unpkg.com/leaflet-search@3.0.9/dist/leaflet-search.min.css" />
+  <!-- Pencarian fitur pada peta -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet-search@3.0.9/dist/leaflet-search.min.css">
   <script src="https://unpkg.com/leaflet-search@3.0.9/dist/leaflet-search.min.js"></script>
 
-  <link rel="stylesheet" href="https://unpkg.com/leaflet-simple-map-screenshoter/dist/leaflet-simple-map-screenshoter.css" />
+  <!-- Screenshot peta -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet-simple-map-screenshoter/dist/leaflet-simple-map-screenshoter.css">
   <script src="https://unpkg.com/leaflet-simple-map-screenshoter/dist/leaflet-simple-map-screenshoter.js"></script>
 
-  <link rel="stylesheet" href="https://unpkg.com/@geoman-io/leaflet-geoman-free@2.15.0/dist/leaflet-geoman.css" />
+  <!-- Drawing/editing shapes -->
+  <link rel="stylesheet" href="https://unpkg.com/@geoman-io/leaflet-geoman-free@2.15.0/dist/leaflet-geoman.css">
   <script src="https://unpkg.com/@geoman-io/leaflet-geoman-free@2.15.0/dist/leaflet-geoman.min.js"></script>
 
-  <link rel="stylesheet" href="https://unpkg.com/leaflet.groupedlayercontrol@0.7.0/dist/leaflet.groupedlayercontrol.min.css" />
+  <!-- Grouped layer control -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet.groupedlayercontrol@0.7.0/dist/leaflet.groupedlayercontrol.min.css">
   <script src="https://unpkg.com/leaflet.groupedlayercontrol@0.7.0/dist/leaflet.groupedlayercontrol.min.js"></script>
 
+  <!-- Modal/alert -->
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
-  <link rel="icon" type="image/png" href="{{ url_for('static', filename='images/telkom.png') }}">
-  <!-- Supabase client (opsional, aman jika tidak dipakai) -->
+  <!-- Supabase client  -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
-  <!-- CSS kita -->
+  <!-- Stylesheet -->
   <link rel="stylesheet" href="{{ url_for('static', filename='css/map.css') }}">
   {% block head %}{% endblock %}
 </head>

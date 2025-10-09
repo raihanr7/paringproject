@@ -49,7 +49,7 @@ FIELD_ORDER = {
         "Link", "Description"
     ],
 
-    "SKKL_Repair_2025_BY_DCS": [
+    "skkl_repair": [
         "name", "description"
     ],
 
@@ -197,7 +197,7 @@ def alus_submarine():
 
 @app.route('/api/repair/skkl')
 def repair_skkl():
-    return jsonify(get_geojson_from_table("SKKL_Repair_2025_BY_DCS"))
+    return jsonify(get_geojson_from_table("skkl_repair"))
 
 @app.route('/api/fo-cut/paring')
 def fo_cut_paring():
@@ -227,7 +227,7 @@ def tambah_marker():
         table_name = "Link_Satelit"
         field_name = "site"
     elif kategori == 'repair2025':
-        table_name = "SKKL_Repair_2025_BY_DCS"
+        table_name = "skkl_repair"
         field_name = "name"
     elif kategori == 'fo_cut':
         table_name = "Palapa_Ring_FO_Cut"
@@ -262,7 +262,7 @@ def delete_marker():
     elif kategori == 'linksatelit':
         table_name = "Link_Satelit"
     elif kategori == 'repair2025':
-        table_name = "SKKL_Repair_2025_BY_DCS"
+        table_name = "skkl_repair"
     elif kategori == 'fo_cut':
         table_name = "Palapa_Ring_FO_Cut"
     else:
@@ -1043,6 +1043,41 @@ def debug_history_table():
             "error": str(e),
             "table_exists": False
         }), 500
+
+@app.route("/api/skkl/e2e-pointsjj")
+def api_e2e_points():
+    cur = conn.cursor()
+    cur.execute("""
+      WITH g AS (
+        SELECT fid, name, dokumen_url,
+               CASE
+                 WHEN ST_SRID(geom) = 4326 THEN geom
+                 WHEN ST_SRID(geom) = 0 THEN ST_SetSRID(geom, 4326)
+                 ELSE ST_Transform(geom, 4326)
+               END AS g4326
+        FROM e2e_skkl
+      )
+      SELECT jsonb_build_object(
+        'type','FeatureCollection',
+        'features', COALESCE(jsonb_agg(
+          jsonb_build_object(
+            'type','Feature',
+            'geometry', ST_AsGeoJSON(g4326)::jsonb,
+            'properties', jsonb_build_object(
+              'fid', fid,
+              'name', name,
+              'dokumen_url', dokumen_url,
+              'source', 'e2e_skkl'
+            )
+          )
+        ), '[]'::jsonb)
+      )
+      FROM g;
+    """)
+    data = cur.fetchone()[0]
+    cur.close()
+    return jsonify(data)
+
 
 # Menjalankan server
 if __name__ == '__main__':

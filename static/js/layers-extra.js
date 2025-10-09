@@ -8,7 +8,7 @@ function tableNameByKategoriFallback(k){
   switch(k){
     case 'backup': return 'Backup Link';
     case 'linksatelit': return 'Link_Satelit';
-    case 'repair2025': return 'SKKL_Repair_2025_BY_DCS';
+    case 'repair2025': return 'skkl_repair';
     case 'fo_cut': return 'Palapa_Ring_FO_Cut';
     default: return '';
   }
