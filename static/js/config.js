@@ -13,7 +13,7 @@ window.backupLinkLayer     = L.layerGroup();
 window.linkSatelitLayer    = L.layerGroup();
 window.foCutLayer          = L.layerGroup();
 
-// Layer untuk pencarian (jangan dideklarasikan di tempat lain)
+// Layer untuk pencarian
 window.searchablePointsLayer = L.layerGroup();
 
 // Label on/off

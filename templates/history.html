@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Update History</title>
     <style>
+        /* Gaya dasar halaman & komponen */
         body { font-family: sans-serif; padding: 2rem; background-color: #f8f9fa; }
         .container { max-width: 1200px; margin: 0 auto; background-color: white; padding: 2rem; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
         h1 { text-align: center; margin-bottom: 2rem; }
@@ -16,13 +17,18 @@
         .btn-back:hover { background-color: #5a6268; }
     </style>
 
+    <!-- Favicon halaman (ikon Telkom) -->
     <link rel="icon" type="image/png" href="/static/images/telkom.png">
 </head>
 <body>
     <div class="container">
+        <!-- Judul halaman riwayat -->
         <h1>Update History</h1>
+
+        <!-- Form filter: pilih Project Name & Project, lalu submit GET ke route 'history' -->
         <form method="GET" action="{{ url_for('history') }}" style="margin-bottom: 2rem; display: flex; align-items: center; gap: 20px; flex-wrap: wrap;">
     
+            <!-- Dropdown filter Project Name (opsional) -->
             <div style="display: flex; align-items: center; gap: 10px;">
                 <label for="project_name_filter">Filter berdasarkan Project Name:</label>
                 <select name="project_name_filter" id="project_name_filter" style="padding: 5px;">
@@ -35,6 +41,7 @@
                 </select>
             </div>
         
+            <!-- Dropdown filter Project (opsional) -->
             <div style="display: flex; align-items: center; gap: 10px;">
                 <label for="project_filter">Filter berdasarkan Project:</label>
                 <select name="project_filter" id="project_filter" style="padding: 5px;">
@@ -47,8 +54,11 @@
                 </select>
             </div>
         
+            <!-- Tombol submit filter -->
             <button type="submit" style="padding: 5px 15px; cursor: pointer;">Filter</button>
         </form>
+
+        <!-- Tabel riwayat perubahan -->
         <table>
             <thead>
                 <tr>
@@ -63,6 +73,7 @@
                 </tr>
             </thead>
             <tbody>
+                <!-- Loop setiap item riwayat; penomoran dihitung dari halaman & index loop -->
                 {% for item in history_data %}
                 <tr>
                     <td>{{ (page - 1) * 20 + loop.index }}</td>
@@ -83,44 +94,51 @@
                     <td>{{ item['Updated at'] }}</td>
                 </tr>
                 {% else %}
+                <!-- Jika tidak ada data sesuai filter, tampilkan baris kosong dengan pesan -->
                 <tr>
                     <td colspan="8" style="text-align: center;">Tidak ada riwayat pembaruan yang cocok dengan filter.</td>
                 </tr>
                 {% endfor %}
             </tbody>
         </table>
+
+            <!-- Navigasi pagination: tampil jika total halaman > 1 -->
             {% if total_pages > 1 %}
             <div style="display:flex;justify-content:center;align-items:center;gap:10px;margin:32px 0;">
-                <!-- Tombol Previous -->
+                <!-- Tombol Previous: aktif jika page > 1 -->
                 {% if page > 1 %}
                     <a href="{{ url_for('history', page=page-1, project_name_filter=selected_project_name, project_filter=selected_project) }}"
                     style="padding:6px 12px;border-radius:5px;border:1px solid #444;background:#222;color:#fff;font-size:22px;text-decoration:none;display:flex;align-items:center;justify-content:center;">
                     &#8592;
                     </a>
                 {% else %}
+                    <!-- State disabled untuk Previous -->
                     <span style="padding:6px 12px;border-radius:5px;border:1px solid #888;background:#444;color:#bbb;font-size:22px;opacity:0.6;display:flex;align-items:center;justify-content:center;">
                     &#8592;
                     </span>
                 {% endif %}
 
-                <!-- Page X of Y -->
+                <!-- Indikator halaman saat ini -->
                 <span style="padding:6px 18px;border-radius:5px;background:#222;color:#fff;font-size:17px;font-weight:bold;">
                     Page {{page}} of {{total_pages}}
                 </span>
 
-                <!-- Tombol Next -->
+                <!-- Tombol Next: aktif jika page < total_pages -->
                 {% if page < total_pages %}
                     <a href="{{ url_for('history', page=page+1, project_name_filter=selected_project_name, project_filter=selected_project) }}"
                     style="padding:6px 12px;border-radius:5px;border:1px solid #444;background:#222;color:#fff;font-size:22px;text-decoration:none;display:flex;align-items:center;justify-content:center;">
                     &#8594;
                     </a>
                 {% else %}
+                    <!-- State disabled untuk Next -->
                     <span style="padding:6px 12px;border-radius:5px;border:1px solid #888;background:#444;color:#bbb;font-size:22px;opacity:0.6;display:flex;align-items:center;justify-content:center;">
                     &#8594;
                     </span>
                 {% endif %}
             </div>
             {% endif %}
+
+        <!-- Tombol kembali ke halaman utama -->
         <a href="/" class="btn-back">Kembali</a>
     </div>
 </body>

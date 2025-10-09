@@ -1,3 +1,4 @@
+// Icon yang diperlukan pada peta
 window.foCutIcon = L.icon({
   iconUrl: '/static/images/exclamation.png', iconSize: [24,24], iconAnchor:[12,12], popupAnchor:[0,-12]
 });
