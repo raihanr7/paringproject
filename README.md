@@ -215,24 +215,6 @@ Aplikasi akan tampil di: **http://127.0.0.1:5000** (alias **http://localhost:500
 
 
 
-## 📝 Masalah yang ada
-1. **Ketidaksesuaian skema `Update History`**  
-   `record_update_history` dan `get_update_history` memakai kolom **"Project"** tetapi `setup_history_table` **tidak membuat kolom itu**. Perbaiki dengan menambah kolom:
-   ```sql
-   ALTER TABLE "Update History" ADD COLUMN IF NOT EXISTS "Project" VARCHAR(255);
-   ```
-   Atau ubah INSERT/SELECT agar **tidak** memakai kolom "Project".
-
-2. **`map.html` tidak ada**  
-   - Opsi A: buat `templates/map.html` yang `{% extends "layout.html" %}` dan sekat body peta di `{% block body %}`.
-   - Opsi B: ubah route `/` menjadi `render_template('layout.html')`.
-
-3. **Hard-coded kredensial** di `app.py` dan `upload.js`. Pindahkan ke ENV.
-
-4. **Fallback nama tabel** untuk `repair2025` berbeda antara FE (`skkl_repair`) vs lokasi lain. Samakan ke satu nama.
-
-5. **Endpoint drag-update** (`/api/update-marker`) belum ada di backend — hapus pemanggilan FE atau implementasikan endpoint-nya.
-
 
 ### Kontak
 Jika ada yang ditanyakan, silakan hubungi saya lewat Telegram: [@kazekage718](https://t.me/kazekage718)
