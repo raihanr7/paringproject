@@ -11,14 +11,16 @@ app = Flask(__name__, template_folder='templates', static_folder='static')
 CORS(app)
 
 # Koneksi ke database PostgreSQL menggunakan Supabase pooler
-conn = psycopg2.connect(
-    host='aws-0-ap-southeast-1.pooler.supabase.com',  # Host dari Supabase pooler
-    database='postgres',                               # Nama database
-    user='postgres.wtmfsznnmyinbgzkdofz',             # Nama pengguna
-    password='***REMOVED***',                      # Ganti dengan password yang benar
-    port='6543',                                       # Port untuk pooler
-    options='-c timezone=Asia/Jakarta -c pool_mode=transaction'                     # Menentukan mode pool
-)
+def get_conn():
+    return psycopg2.connect(
+        host=os.getenv("DB_HOST"),
+        database=os.getenv("DB_NAME"),
+        user=os.getenv("DB_USER"),
+        password=os.getenv("DB_PASS"),
+        port=os.getenv("DB_PORT"),
+        options="-c timezone=Asia/Jakarta -c pool_mode=transaction"
+    )
+
 
 FIELD_ORDER = {
     "Palapa_Ring_Barat_Alur": [
@@ -68,7 +70,9 @@ FIELD_ORDER = {
 }
 
 def get_geojson_from_table(table_name):
+    conn = get_conn()          # ← BARIS BARU (1)
     cur = conn.cursor()
+
     cur.execute(f'SELECT *, ST_AsGeoJSON(geom) FROM "{table_name}"')
     rows = cur.fetchall()
     colnames = [desc[0] for desc in cur.description]
@@ -80,24 +84,17 @@ def get_geojson_from_table(table_name):
     for i, row in enumerate(rows):
         try:
             full_props = dict(zip(colnames, row))
-            # Konversi Updated at ke WIB jika ada
+
             if "Updated at" in full_props and full_props["Updated at"]:
-                # full_props["Updated at"] adalah datetime aware (timestamptz)
                 ts_utc = full_props["Updated at"]
-                # convert ke WIB
                 ts_wib = ts_utc.astimezone(wib_tz)
-                # format ke string sesuai keinginan
                 full_props["Updated at"] = ts_wib.strftime('%Y-%m-%d %H:%M:%S %Z')
 
-            # Properties sesuai urutan
             props = {key: full_props.get(key, "") for key in ordered_keys}
 
-            # Selalu sertakan dokumen_url kalau ada (meski tidak ada di FIELD_ORDER)
             if 'dokumen_url' in full_props and 'dokumen_url' not in props:
                 props['dokumen_url'] = full_props['dokumen_url']
 
-        
-            # Always include fid for update operations, even if not in display order
             if 'fid' in full_props and 'fid' not in props:
                 props['fid'] = full_props['fid']
 
@@ -106,15 +103,12 @@ def get_geojson_from_table(table_name):
 
             if 'Project' in full_props and 'Project' not in props:
                 props['Project'] = full_props['Project']
-  
-            # Check if we have geometry data
+
             if len(row) == 0:
-                print(f"Warning: Empty row {i} in table {table_name}")
                 continue
-                
-            geometry_json = row[-1]  # Last column should be the geometry
+
+            geometry_json = row[-1]
             if not geometry_json:
-                print(f"Warning: No geometry data for row {i} in table {table_name}")
                 continue
 
             feature = {
@@ -123,12 +117,12 @@ def get_geojson_from_table(table_name):
                 "properties": props
             }
             features.append(feature)
-            
-        except Exception as e:
-            print(f"Error processing row {i} in table {table_name}: {str(e)}")
-            print(f"Row data: {row}")
-            print(f"Column names: {colnames}")
+
+        except Exception:
             continue
+
+    cur.close()                # ← BARIS BARU (2)
+    conn.close()               # ← BARIS BARU (3)
 
     geojson = {
         "type": "FeatureCollection",
@@ -136,6 +130,7 @@ def get_geojson_from_table(table_name):
         "field_order": ordered_keys
     }
     return geojson
+
 
 def record_update_history(project_name, project, link_name, old_value, new_value):
     try:
