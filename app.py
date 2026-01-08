@@ -369,6 +369,8 @@ def update_okupansi():
     if value is None:
         return {"success": False, "error": "Value kosong"}, 400
 
+    conn = get_conn()
+    
     try:
         with conn.cursor() as cur:
 
@@ -455,6 +457,8 @@ def update_okupansi():
         traceback.print_exc()
         return {"success": False, "error": str(e)}, 500
 
+    finally:
+        conn.close()
 
 
 # âœ¨ Endpoint dinamis untuk update data dan "Updated at"
