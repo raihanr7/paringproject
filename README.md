@@ -215,6 +215,15 @@ Aplikasi akan tampil di: **http://127.0.0.1:5000** (alias **http://localhost:500
 
 
 
+<<<<<<< Updated upstream
+=======
+## 📝 Masalah yang ada
+1. h
+2. 
+3. 
+4. 
+
+>>>>>>> Stashed changes
 
 ### Kontak
 Jika ada yang ditanyakan, silakan hubungi saya lewat Telegram: [@kazekage718](https://t.me/kazekage718)
