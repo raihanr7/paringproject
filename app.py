@@ -404,6 +404,7 @@ def update_okupansi():
                 cur.execute(sql_update, (value, link_name))
 
                 record_update_history(
+                    conn,
                     project_name=project_name,
                     project=project_code,
                     link_name=link_from_db,
@@ -441,6 +442,7 @@ def update_okupansi():
 
                 # 3. Catat ke histori
                 record_update_history(
+                    conn,
                     project_name=project_name,
                     project=project,
                     link_name='Seluruh Project',
