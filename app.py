@@ -840,6 +840,7 @@ def setup_history_table():
 @app.route('/history')
 def history():
     try:
+        conn = get_conn()
         cur = conn.cursor()
         selected_project_name = request.args.get('project_name_filter', '')
         selected_project = request.args.get('project_filter', '')
@@ -888,6 +889,7 @@ def history():
         columns = [desc[0] for desc in cur.description]
         history_data_raw = cur.fetchall()
         cur.close()
+        conn.close() 
 
         import pytz
         wib_tz = pytz.timezone('Asia/Jakarta')
