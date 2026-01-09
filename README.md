@@ -64,7 +64,7 @@ options='-c timezone=Asia/Jakarta -c pool_mode=transaction'
 
 ## Hosting
 **Vercel**
-Peta online ini dihosting via "https://vercel.com/". Link project "https://vercel.com/palaparingallproject/palapa_ring_project"
+Peta online ini dihosting via "https://vercel.com/".
 
 
 ## Struktur Proyek
