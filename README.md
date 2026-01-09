@@ -22,14 +22,14 @@ Dashboard peta interaktif untuk memantau kondisi layanan
 
 ## Dataset dan Storage
   
-  1. Dataset disimpan di Supabase (SQL Cloude based database). 
+  1. Dataset disimpan di Supabase (SQL Cloud database). 
   2. Kolom "geom" pada dataset memiliki tipe kolom *geometry*, sehingga perlu menginstall extension *postgis* kolom geom dapat digunakan sebagai titik koordinat. Berikut link untuk mengunduh postgis "https://postgis.net/". Pastikan extension postgis terinstall via SQL query dengan syntax: 
 
             - CREATE EXTENSION postgis;
         notes: Install extension postgis diperlukan di awal saja jika akan mengedit di database yang baru baik lokal maupun cloud. Jika tidak menginstall postgis maka kolom geom tidak akan ada pilihan tipe data "geometry" dan dataset tidak bisa digunakan
 
     
-  3. Dataset yang digunakan terdiri dari beberaa tabel. Diantaranya
+  3. Dataset yang digunakan terdiri dari beberaa tabel, diantaranya:
         1. Palapa_Ring_Barat_Point (Titik project Paring Barat)
         2. Palapa_Ring_Barat_Alur (Alur antar project Paring Barat)
         3. Palapa_Ring_Tengah_Point (Titik project Paring Tengah)
@@ -55,31 +55,6 @@ options='-c timezone=Asia/Jakarta -c pool_mode=transaction'
 Peta online ini dihosting via "https://vercel.com/".
 
 
-## Struktur Proyek
-```
-/app.py                   -- Flask app: route, render template, serve API.
-/templates/
-  |── layout.html         -- template dasar: load CSS/JS, block head/body.
-  └── map.html            -- halaman peta (tombol add marker, sidebar, upload doc, history edit per project (paring only), dan load script .js lainnya)
-/static/
-  /css/map.css            -- styling peta, sidebar, kontrol, legenda.
-  /js/                    
-    baseLayers.js         -- basemap (Google Satellite, OSM).
-    config.js             -- state global (layer groups, flags, BASE `/api`).
-    controls.js           -- toggle label, tombol History, kontrol search, kontrol Geoman minimal.
-    icons.js              -- icon legenda
-    layers-palapa.js      -- loader GeoJSON dari API + style titik/garis + sidebar.
-    layers-e2e-points.js  -- layer point pada SKKL (pane khusus, label permanen, search). BELUM AKTIF!!!!
-    layers-extra.js       -- popup *file dokumen* (bisa view/unggah/hapus), mapping kategori→tabel
-    mapInit.js            -- inisialisasi map, legend, layer control.
-    markers.js            -- tambah marker + hitung jarak polyline.
-    sidebar.js            -- modal History, util gambar, integrasi sidebar.
-    upload.js             -- integrasi dengan Supabase Storage untuk mengupload dokumen
-    utils.js              -- format Rupiah pada nilai kontrak, toast notification, show/hide sidebar
-  /images/                 # exclamation.png, repair.png, backuplink.png, linksatelit.png, microwave.png (untuk icon di peta)
-
-
-```
 ## Cara Pemakaian Peta
 **Main Page**
 1. Buka halaman utama → pilih layer di bagian ujung kanan atas.
@@ -99,12 +74,6 @@ Peta online ini dihosting via "https://vercel.com/".
 2. Klik objek → detail di sidebar.
 
 3. Edit value (cth. Okupansi) → Simpan. Untuk melihat history perubahan nilai okupansi klik tombol "Update History" di list tombol sebelah kiri
-
-
-
-
-> **Catatan:** Saat ini `app.py` me-render `map.html`, tapi yang ada di repo kamu adalah `layout.html`. Solusi paling mudah: buat `templates/map.html` yang _extends_ `layout.html` atau ubah route `/` untuk me-render `layout.html` langsung. Lihat bagian **Known Issues**.
-
 
 
 
@@ -153,7 +122,7 @@ python app.py
 ```
 Aplikasi akan tampil di: **http://127.0.0.1:5000** (alias **http://localhost:5000**).
 
-## 4) Edit deh bos scriptnya
+## 4) Edit scriptnya
 
 ## 🧩 Modul Frontend Utama
 - `config.js` – state global (layer groups, flags, BASE `/api`).
@@ -170,8 +139,6 @@ Aplikasi akan tampil di: **http://127.0.0.1:5000** (alias **http://localhost:500
 - `map.css` – style peta, legend, sidebar, label, notifikasi.
 
 
-
->>>>>>> Stashed changes
 
 ### Kontak
 Jika ada yang ditanyakan, silakan hubungi saya lewat Telegram: [@kazekage718](https://t.me/kazekage718)
