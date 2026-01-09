@@ -1,6 +1,6 @@
-# Peta Jaringan Layanan Telkom Indonesia
+# Peta Jaringan 
 
-Dashboard peta interaktif untuk memantau kondisi layanan milik Telkom Indonesia
+Dashboard peta interaktif untuk memantau kondisi layanan 
 
 >  Terakhir diperbarui: 2026-01-09 (WIB)
 
@@ -36,19 +36,11 @@ Dashboard peta interaktif untuk memantau kondisi layanan milik Telkom Indonesia
         4. Palapa_Ring_Tengah_Alur (Alur antar project Paring Tengah)
         5. Palapa_Ring_Timur_Point (Titik project Paring Timur)
         6. Palapa_Ring_Timur_Alur (Alur antar project Paring Timur)
-        7. Backup Link (Layanan Satelit VSAT)
-        8. Link_Satelit (Layanan Satelit VSAT)
-        9. Palapa_Ring_FO_Cut (Lokasi fiber optic cut)
-        10. SKKL_Repair_2025_BY_DCS (history titik perbaikan FO)
-        11. SubmarineCable_Alur (Alur SKKL Telkom)
-        12. e2_skkl (Titik akhir SKKL)
-        13. skkl_repair (history titik perbaikan FO) (TIDAK DIGUNAKAN!)
   4. Syntax disimpan di Github "https://github.com/raihanr7/my-flask-app"
 
-## ⚙️ Konfigurasi Database
 
-
-# PostgreSQL (via Transaction pooler karena Vercel hanya compatibel dengan ini saja)
+##  Konfigurasi Database
+# PostgreSQL (via Transaction pooler)
 host=os.getenv('DATABASE_HOST'),
 database=os.getenv('DB_NAME'),
 user=os.getenv('DB_USER'),
@@ -56,11 +48,7 @@ password=os.getenv('DB_PASSWORD'),
 port=os.getenv('DB_PORT'),
 options='-c timezone=Asia/Jakarta -c pool_mode=transaction'
 
-
-
-- **Fitur utama**: Layer Palapa Ring (Barat/Tengah/Timur), Submarine Cable, SKKL Repair, Backup Link, Link Satelit, FO Cut, E2E points; sidebar detail & edit Okupansi; History update.
-
-
+- **Fitur utama**: Layer Palapa Ring (Barat/Tengah/Timur)
 
 ## Hosting
 **Vercel**
@@ -102,15 +90,6 @@ Peta online ini dihosting via "https://vercel.com/".
     - Palapa Ring Timur (Layanan FO yang Telkom sewa ke BAKTI)
       
       <img src="static/imgdocs/paring.png" alt="Paring" width="700" height="400">
-    - Submarine Cable (Jaringan kabel FO bawah laut)
-    - SKKL Repair (Titik reparasi SKKL)
-    - FO Cut (FO yang terputus/gangguan)
-
-      <img src="static/imgdocs/skklnrepair.png" alt="SKKL" width="700" height="400">
-    - Backup Link (Layanan Satelit VSAT)
-    - Link Satelit Temporer (Layanan Satelit VSAT)
-
-      <img src="static/imgdocs/VSAT.png" alt="VSAT Star" width="700" height="400">
 
 **Edit Value (okupansi, nilai kontrak, periode)**
 1. Pastikan layer yang terbuka adalah Palapa Ring (Barat/Tengah/Timur)
@@ -119,26 +98,7 @@ Peta online ini dihosting via "https://vercel.com/".
 
 2. Klik objek → detail di sidebar.
 
-<img src="static/imgdocs/sidebar.png" alt="Sidebar" width="700" height="400">
-
 3. Edit value (cth. Okupansi) → Simpan. Untuk melihat history perubahan nilai okupansi klik tombol "Update History" di list tombol sebelah kiri
-
-<img src="static/imgdocs/editokupansi.png" alt="Edit Okupansi" width="700" height="400"> <img src="static/imgdocs/updatehistory.png" alt="Update History" width="700" height="400">
-
-**Upload Dokumen (pdf, jpg, dll)**
-1. Seluruh layanan memiliki fitur upload dokumen. Upload dokumen dapat dilakukan pada layer baru atau existing 
-2. Cth layer FO Cut --> klik Upload/Ganti Gambar kemudian pilih gambar (max 500kb)
-
-<img src="static/imgdocs/uploaddoc.png" alt="Upload Doc" width="700" height="400">
-
-**Add Marker (Backup Link/Link Satelit Temporer/SKKL Repair/FO Cut)**
-1. Di sebelah kiri peta terdapat beberapa tombol, pilih tombol *Add Marker*
-
-<img src="static/imgdocs/buttonaddmarker.png" alt="Add Button Marker">
-
-2. Pilih layanan yang akan ditambahkan (Backup Link, Link Satelit Temporer, SKKl Repair, dan FO Cut). Kemudian lengkapi kolom *Nama Site* dan *Deskripsi* serta upload dokumen jika diperlukan
-
-<img src="static/imgdocs/addmarker.png" alt="Add Marker" width="700" height="400"> <img src="static/imgdocs/uploaddoc.png" alt="Upload Doc" width="700" height="400">
 
 
 
@@ -210,14 +170,6 @@ Aplikasi akan tampil di: **http://127.0.0.1:5000** (alias **http://localhost:500
 - `map.css` – style peta, legend, sidebar, label, notifikasi.
 
 
-
-<<<<<<< Updated upstream
-=======
-## 📝 Masalah yang ada
-1. h
-2. 
-3. 
-4. 
 
 >>>>>>> Stashed changes
 
