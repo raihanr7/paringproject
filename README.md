@@ -1,16 +1,8 @@
-<<<<<<< HEAD
 # Peta Jaringan
 
 Dashboard peta interaktif untuk memantau kondisi layanan
 
 > Terakhir diperbarui: 2026-01-09 (WIB)
-=======
-# Peta Jaringan 
-
-Dashboard peta interaktif untuk memantau kondisi layanan 
-
->  Terakhir diperbarui: 2026-01-09 (WIB)
->>>>>>> a4e524a6b47e679db202b4e71b1a777f70ec2a1e
 
 ---
 
@@ -30,17 +22,10 @@ Dashboard peta interaktif untuk memantau kondisi layanan
   7. @supabase/supabase-js v2 -- ext untuk upload document ke Supabase
 
 ## Dataset dan Storage
-<<<<<<< HEAD
-=======
-  
-  1. Dataset disimpan di Supabase (SQL Cloud database). 
-  2. Kolom "geom" pada dataset memiliki tipe kolom *geometry*, sehingga perlu menginstall extension *postgis* kolom geom dapat digunakan sebagai titik koordinat. Berikut link untuk mengunduh postgis "https://postgis.net/". Pastikan extension postgis terinstall via SQL query dengan syntax: 
->>>>>>> a4e524a6b47e679db202b4e71b1a777f70ec2a1e
 
 1.  Dataset disimpan di Supabase (SQL Cloud database).
 2.  Kolom "geom" pada dataset memiliki tipe kolom _geometry_, sehingga perlu menginstall extension _postgis_ kolom geom dapat digunakan sebagai titik koordinat. Berikut link untuk mengunduh postgis "https://postgis.net/". Pastikan extension postgis terinstall via SQL query dengan syntax:
 
-<<<<<<< HEAD
           - CREATE EXTENSION postgis;
 
     notes: Install extension postgis diperlukan di awal saja jika akan mengedit di database yang baru baik lokal maupun cloud. Jika tidak menginstall postgis maka kolom geom tidak akan ada pilihan tipe data "geometry" dan dataset tidak bisa digunakan
@@ -58,21 +43,6 @@ Dashboard peta interaktif untuk memantau kondisi layanan
 
 # PostgreSQL (via Transaction pooler)
 
-=======
-    
-  3. Dataset yang digunakan terdiri dari beberaa tabel, diantaranya:
-        1. Palapa_Ring_Barat_Point (Titik project Paring Barat)
-        2. Palapa_Ring_Barat_Alur (Alur antar project Paring Barat)
-        3. Palapa_Ring_Tengah_Point (Titik project Paring Tengah)
-        4. Palapa_Ring_Tengah_Alur (Alur antar project Paring Tengah)
-        5. Palapa_Ring_Timur_Point (Titik project Paring Timur)
-        6. Palapa_Ring_Timur_Alur (Alur antar project Paring Timur)
-  4. Syntax disimpan di Github "https://github.com/raihanr7/my-flask-app"
-
-
-##  Konfigurasi Database
-# PostgreSQL (via Transaction pooler)
->>>>>>> a4e524a6b47e679db202b4e71b1a777f70ec2a1e
 host=os.getenv('DATABASE_HOST'),
 database=os.getenv('DB_NAME'),
 user=os.getenv('DB_USER'),
@@ -87,14 +57,9 @@ options='-c timezone=Asia/Jakarta -c pool_mode=transaction'
 **Vercel**
 Peta online ini dihosting via "https://vercel.com/".
 
-<<<<<<< HEAD
-=======
-
->>>>>>> a4e524a6b47e679db202b4e71b1a777f70ec2a1e
 ## Cara Pemakaian Peta
 
 **Main Page**
-<<<<<<< HEAD
 
 1. Buka halaman utama → pilih layer di bagian ujung kanan atas.
    ![Main screen](static/imgdocs/mainscreen.png)
@@ -104,16 +69,6 @@ Peta online ini dihosting via "https://vercel.com/".
    - Palapa Ring Timur (Layanan FO yang Telkom sewa ke BAKTI)
 
      <img src="static/imgdocs/paring.png" alt="Paring" width="700" height="400">
-=======
-1. Buka halaman utama → pilih layer di bagian ujung kanan atas.
-![Main screen](static/imgdocs/mainscreen.png)
-2. Pilih layer:
-    - Palapa Ring Barat (Layanan FO yang Telkom sewa ke BAKTI)
-    - Palapa Ring Tengah (Layanan FO yang Telkom sewa ke BAKTI)
-    - Palapa Ring Timur (Layanan FO yang Telkom sewa ke BAKTI)
-      
-      <img src="static/imgdocs/paring.png" alt="Paring" width="700" height="400">
->>>>>>> a4e524a6b47e679db202b4e71b1a777f70ec2a1e
 
 **Edit Value (okupansi, nilai kontrak, periode)**
 
@@ -125,14 +80,7 @@ Peta online ini dihosting via "https://vercel.com/".
 
 3. Edit value (cth. Okupansi) → Simpan. Untuk melihat history perubahan nilai okupansi klik tombol "Update History" di list tombol sebelah kiri
 
-<<<<<<< HEAD
 # Editing script
-=======
-
-
-# Editing script 
-Disarankan menjalankan dan mengedit script secara lokal untuk mengedit fitur peta dll. Kemudian dapat dipush ke github jika sudah selesai 
->>>>>>> a4e524a6b47e679db202b4e71b1a777f70ec2a1e
 
 Disarankan menjalankan dan mengedit script secara lokal untuk mengedit fitur peta dll. Kemudian dapat dipush ke github jika sudah selesai
 
@@ -200,11 +148,6 @@ Aplikasi akan tampil di: **http://127.0.0.1:5000** (alias **http://localhost:500
 - `upload.js` – integrasi Supabase Storage untuk unggah dokumen/evidence.
 - `map.css` – style peta, legend, sidebar, label, notifikasi.
 
-<<<<<<< HEAD
-=======
-
-
->>>>>>> a4e524a6b47e679db202b4e71b1a777f70ec2a1e
 ### Kontak
 
 Jika ada yang ditanyakan, silakan hubungi saya lewat Telegram: [@kazekage718](https://t.me/kazekage718)
