@@ -2,7 +2,7 @@
 
 Dashboard peta interaktif untuk memantau kondisi layanan milik Telkom Indonesia
 
-> Bahasa: Indonesia • Fitur Terakhir diperbarui: 2025-08-22 (WIB)
+>  Terakhir diperbarui: 2026-01-09 (WIB)
 
 ---
 
@@ -22,7 +22,7 @@ Dashboard peta interaktif untuk memantau kondisi layanan milik Telkom Indonesia
 
 ## Dataset dan Storage
   
-  1. Dataset disimpan di Supabase (SQL Cloude based database). "https://supabase.com/dashboard/project/wtmfsznnmyinbgzkdofz"
+  1. Dataset disimpan di Supabase (SQL Cloude based database). 
   2. Kolom "geom" pada dataset memiliki tipe kolom *geometry*, sehingga perlu menginstall extension *postgis* kolom geom dapat digunakan sebagai titik koordinat. Berikut link untuk mengunduh postgis "https://postgis.net/". Pastikan extension postgis terinstall via SQL query dengan syntax: 
 
             - CREATE EXTENSION postgis;
@@ -49,18 +49,14 @@ Dashboard peta interaktif untuk memantau kondisi layanan milik Telkom Indonesia
 
 
 # PostgreSQL (via Transaction pooler karena Vercel hanya compatibel dengan ini saja)
-host='aws-0-ap-southeast-1.pooler.supabase.com',                  # Host dari Supabase pooler
-database='postgres',                                              # Nama database
-user='postgres.wtmfsznnmyinbgzkdofz',                             # Nama pengguna
-password='palaparingproject',                                     # Ganti dengan password yang benar
-port='6543',                                                      # Port untuk pooler
-options='-c timezone=Asia/Jakarta -c pool_mode=transaction'       # Menentukan mode pool
+host=os.getenv('DATABASE_HOST'),
+database=os.getenv('DB_NAME'),
+user=os.getenv('DB_USER'),
+password=os.getenv('DB_PASSWORD'),
+port=os.getenv('DB_PORT'),
+options='-c timezone=Asia/Jakarta -c pool_mode=transaction'
 
 
-# Supabase Storage (opsional untuk upload evidence)
-SUPABASE_URL=https://wtmfsznnmyinbgzkdofz.supabase.co
-SUPABASE_ANON_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Ind0bWZzem5ubXlpbmJnemtkb2Z6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDc3MTYxNDIsImV4cCI6MjA2MzI5MjE0Mn0.gZzNz6hxypg4_oyGEgG7PrweuXw1pahGVi1GD4XO1nM'
-SUPABASE_BUCKET=dokumen-peta
 
 - **Fitur utama**: Layer Palapa Ring (Barat/Tengah/Timur), Submarine Cable, SKKL Repair, Backup Link, Link Satelit, FO Cut, E2E points; sidebar detail & edit Okupansi; History update.
 
@@ -98,7 +94,7 @@ Peta online ini dihosting via "https://vercel.com/". Link project "https://verce
 ```
 ## Cara Pemakaian Peta
 **Main Page**
-1. Buka halaman utama (https://palaparingproject-git-main-palaparingallproject.vercel.app/) → pilih layer di bagian ujung kanan atas.
+1. Buka halaman utama → pilih layer di bagian ujung kanan atas.
 ![Main screen](static/imgdocs/mainscreen.png)
 2. Pilih layer:
     - Palapa Ring Barat (Layanan FO yang Telkom sewa ke BAKTI)
