@@ -16,14 +16,15 @@ app = Flask(__name__, template_folder='templates', static_folder='static')
 CORS(app)
 
 # Koneksi ke database PostgreSQL menggunakan Supabase pooler
-conn = psycopg2.connect(
-    host=os.getenv('DATABASE_HOST'),
-    database=os.getenv('DB_NAME'),
-    user=os.getenv('DB_USER'),
-    password=os.getenv('DB_PASSWORD'),
-    port=os.getenv('DB_PORT'),
-    options='-c timezone=Asia/Jakarta -c pool_mode=transaction'
-)
+def get_conn():
+    return psycopg2.connect(
+        host=os.getenv('DATABASE_HOST'),
+        database=os.getenv('DB_NAME'),
+        user=os.getenv('DB_USER'),
+        password=os.getenv('DB_PASSWORD'),
+        port=os.getenv('DB_PORT'),
+        options='-c timezone=Asia/Jakarta -c pool_mode=transaction'
+    )
 
 FIELD_ORDER = {
     "Palapa_Ring_Barat_Alur": [
@@ -73,7 +74,9 @@ FIELD_ORDER = {
 }
 
 def get_geojson_from_table(table_name):
-    cur = conn.cursor()
+    conn_local = get_conn()
+    print("DEBUG: get_conn loaded")
+    cur = conn_local.cursor()
     cur.execute(f'SELECT *, ST_AsGeoJSON(geom) FROM "{table_name}"')
     rows = cur.fetchall()
     colnames = [desc[0] for desc in cur.description]
@@ -140,9 +143,11 @@ def get_geojson_from_table(table_name):
         "features": features,
         "field_order": ordered_keys
     }
+    cur.close()
+    conn_local.close()
     return geojson
 
-def record_update_history(project_name, project, link_name, old_value, new_value):
+def record_update_history(conn, project_name, project, link_name, old_value, new_value):
     try:
         cur = conn.cursor()
 
@@ -241,16 +246,17 @@ def tambah_marker():
         return {"success": False, "error": "Kategori tidak dikenal"}, 400
 
     try:
-        cur = conn.cursor()
+        conn_local = get_conn()
+        cur = conn_local.cursor()
         geom_wkt = f"POINT({lng} {lat})"
         sql = f'INSERT INTO "{table_name}" ("id", "{field_name}", "description", "geom") VALUES (%s, %s, %s, ST_GeomFromText(%s, 4326))'
         cur.execute(sql, (new_id, site, description, geom_wkt))
-        conn.commit()
+        conn_local.commit()
         cur.close()
+        conn_local.close()
         # <<-- Kembalikan id & table untuk proses upload evidence di frontend
         return {"success": True, "id": new_id, "table": table_name}
     except Exception as e:
-        conn.rollback()
         return {"success": False, "error": str(e)}, 500
 
 
@@ -274,16 +280,17 @@ def delete_marker():
         return {"success": False, "error": "Kategori tidak dikenal"}, 400
 
     try:
-        cur = conn.cursor()
+        conn_local = get_conn()
+        cur = conn_local.cursor()
         print('HAPUS MARKER:', table_name, marker_id)
         sql = f'DELETE FROM "{table_name}" WHERE id=%s'
         cur.execute(sql, (marker_id,))
         print('ROWCOUNT:', cur.rowcount)
-        conn.commit()
+        conn_local.commit()
         cur.close()
+        conn_local.close()
         return {"success": True}
     except Exception as e:
-        conn.rollback()
         return {"success": False, "error": str(e)}, 500
 
 
@@ -298,16 +305,16 @@ def update_marker_doc():
         return {"success": False, "error": "Missing table/id/dokumen_url"}, 400
 
     try:
-        cur = conn.cursor()
+        conn_local = get_conn()
+        cur = conn_local.cursor()
         # NB: kolom "dokumen_url" harus sudah ada di tabel terkait
         cur.execute(f'UPDATE "{table}" SET dokumen_url = %s WHERE id = %s', (dok_url, marker_id))
         updated = cur.rowcount
-        conn.commit()
+        conn_local.commit()
         cur.close()
+        conn_local.close()
         return {"success": updated > 0, "updated": updated}
     except Exception as e:
-        try: conn.rollback()
-        except: pass
         return {"success": False, "error": str(e)}, 500
 
 
@@ -321,37 +328,15 @@ def clear_marker_doc():
         return {"success": False, "error": "Missing table/id"}, 400
 
     try:
-        cur = conn.cursor()
+        conn_local = get_conn()
+        cur = conn_local.cursor()
         cur.execute(f'UPDATE "{table}" SET dokumen_url = NULL WHERE id = %s', (marker_id,))
         updated = cur.rowcount
-        conn.commit()
+        conn_local.commit()
         cur.close()
+        conn_local.close()
         return {"success": updated > 0, "updated": updated}
     except Exception as e:
-        try: conn.rollback()
-        except: pass
-        return {"success": False, "error": str(e)}, 500
-
-def update_marker_doc():
-    data = request.get_json(force=True) or {}
-    table = data.get('table')
-    marker_id = data.get('id')
-    dok_url = data.get('dokumen_url')
-
-    if not (table and marker_id and dok_url):
-        return {"success": False, "error": "Missing table/id/dokumen_url"}, 400
-
-    try:
-        cur = conn.cursor()
-        # NB: kolom "dokumen_url" harus sudah ada di tabel terkait
-        cur.execute(f'UPDATE "{table}" SET dokumen_url = %s WHERE id = %s', (dok_url, marker_id))
-        updated = cur.rowcount
-        conn.commit()
-        cur.close()
-        return {"success": updated > 0, "updated": updated}
-    except Exception as e:
-        try: conn.rollback()
-        except: pass
         return {"success": False, "error": str(e)}, 500
 
 
@@ -379,11 +364,12 @@ def update_okupansi():
         return {"success": False, "error": "Value kosong"}, 400
 
     try:
-        with conn.cursor() as cur:
+        conn_local = get_conn()
+        with conn_local.cursor() as cur:
 
             if scope == 'link':
                 sql = '''
-                    SELECT "Okupansi Telkom (%%)", "Project", "Link"
+                    SELECT "Okupansi Telkom (%)", "Project", "Link"
                     FROM "{}"
                     WHERE TRIM("Link") = %s
                     LIMIT 1
@@ -405,12 +391,13 @@ def update_okupansi():
 
                 sql_update = '''
                     UPDATE "{}"
-                    SET "Okupansi Telkom (%%)" = %s, "Updated at" = NOW()
+                    SET "Okupansi Telkom (%)" = %s, "Updated at" = NOW()
                     WHERE TRIM("Link") = %s
                 '''.format(table)
                 cur.execute(sql_update, (value, link_name))
 
                 record_update_history(
+                    conn_local,
                     project_name=project_name,
                     project=project_code,
                     link_name=link_from_db,
@@ -438,7 +425,7 @@ def update_okupansi():
                 # 2. Update semua link dalam satu project
                 sql_update = f'''
                     UPDATE "{table}"
-                    SET "Okupansi Telkom (%%)" = %s, "Updated at" = NOW()
+                    SET "Okupansi Telkom (%)" = %s, "Updated at" = NOW()
                     WHERE "Project" = %s
                 '''
                 cur.execute(sql_update, (value, project))
@@ -448,6 +435,7 @@ def update_okupansi():
 
                 # 3. Catat ke histori
                 record_update_history(
+                    conn_local,
                     project_name=project_name,
                     project=project,
                     link_name='Seluruh Project',
@@ -455,18 +443,17 @@ def update_okupansi():
                     new_value=value
                 )
 
-        conn.commit()
+        conn_local.commit()
+        conn_local.close()
         return {"success": True}
 
     except Exception as e:
-        conn.rollback()
         import traceback
         traceback.print_exc()
         return {"success": False, "error": str(e)}, 500
 
 
-
-# âœ¨ Endpoint dinamis untuk update data dan "Updated at"
+# ✨ Endpoint dinamis untuk update data dan "Updated at"
 @app.route('/api/update/<table_name>/<int:fid>', methods=['POST'])
 def update_table(table_name, fid):
     try:
@@ -735,7 +722,8 @@ def get_update_history():
         link_name = request.args.get('link')
         limit = request.args.get('limit', default=100, type=int)
         
-        cur = conn.cursor()
+        conn_local = get_conn()
+        cur = conn_local.cursor()
         
         query = '''
             SELECT "History ID", "Project Name", "Project", "Link Name", "Old Value", "New Value", "Updated at"
@@ -777,6 +765,7 @@ def get_update_history():
             history_data.append(history_item)
         
         cur.close()
+        conn_local.close()
         return jsonify({"data": history_data})
     
     except Exception as e:
@@ -848,8 +837,10 @@ def setup_history_table():
 
 @app.route('/history')
 def history():
+    conn_local = None
     try:
-        cur = conn.cursor()
+        conn_local = get_conn()
+        cur = conn_local.cursor()
         selected_project_name = request.args.get('project_name_filter', '')
         selected_project = request.args.get('project_filter', '')
 
@@ -922,16 +913,21 @@ def history():
         import traceback
         traceback.print_exc()
         return "Gagal memuat riwayat. Silakan cek terminal untuk detail error."
+    finally:
+        if conn_local:
+            conn_local.close()
 
 
 # Debug endpoints
 @app.route('/api/debug/table/<table_name>')
 def debug_table_structure(table_name):
     try:
-        cur = conn.cursor()
+        conn_local = get_conn()
+        cur = conn_local.cursor()
         cur.execute(f'SELECT column_name, data_type FROM information_schema.columns WHERE table_name = %s ORDER BY ordinal_position', (table_name,))
         columns = cur.fetchall()
         cur.close()
+        conn_local.close()
         return jsonify({
             "table": table_name,
             "columns": [{"name": col[0], "type": col[1]} for col in columns]
