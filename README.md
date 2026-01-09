@@ -65,9 +65,9 @@ Peta online ini dihosting via "https://vercel.com/".
    ![Main screen](static/imgdocs/mainscreen1.png)
 2. Pilih layer:
 
-   - Palapa Ring Barat (Layanan FO yang Telkom sewa ke BAKTI)
-   - Palapa Ring Tengah (Layanan FO yang Telkom sewa ke BAKTI)
-   - Palapa Ring Timur (Layanan FO yang Telkom sewa ke BAKTI)
+   - Palapa Ring Barat
+   - Palapa Ring Tengah
+   - Palapa Ring Timur
 
      <img src="static/imgdocs/paring.png" alt="Paring" width="700" height="400">
 
