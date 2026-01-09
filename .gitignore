@@ -9,6 +9,7 @@ venv/
 .venv/
 env/
 .env
+run_dev.ps1
 
 # Lainnya
 .DS_Store
