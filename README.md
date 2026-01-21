@@ -1,13 +1,8 @@
 # Peta Palapa Ring Project
 
-Aplikasi peta interaktif untuk monitoring jaringan Palapa Ring Indonesia.
+Aplikasi peta interaktif untuk monitoring jaringan Palapa Ring Indonesia dan lainnya.
 
 ## Features
 
-- Interactive map dengan Leaflet.js
+- Interactive map 
 - Real-time data dari Supabase
-- Secure credentials dengan environment variables
-
-## Setup
-
-Lihat `SETUP_ENV.md` untuk panduan setup environment variables.
